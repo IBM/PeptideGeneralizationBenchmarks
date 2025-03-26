@@ -65,8 +65,8 @@ The second subtask only concerns non-canonical peptides.
 
 The last subtask measures how well models trained with each of the representations can generalise/extrapolate from a canonical training set to a non-canonical test set.
 
-| Representation   | Protein-peptide binding affinity   | Cell penetration   | Antibacterial   | Antiviral   | Average   |
-|:-----------------|:-----------------------------------|:-------------------|:----------------|:------------|:----------|
+| Representation   | Protein-peptide binding affinity   | Cell penetration   | Antibacterial   | Antiviral   | Average   | Significant rank |
+|:-----------------|:-----------------------------------|:-------------------|:----------------|:------------|:----------| --- |
 | ChemBERTa-2      | 0.15±0.01                          | 0.073±0.01         | 0.27±0.006      | 0.38±0.02   | 0.22±0.01 | **-1-** |
 | ECFP-16          | 0.055±0.01                         | 0.051±0.02         | 0.32±0.006      | 0.35±0.02   | 0.19±0.01 | **-1-** |
 | PeptideCLM       | 0.32±0.01                          | 0.019±0.02         | 0.23±0.008      | 0.16±0.01   | 0.18±0.01 |  2 |
