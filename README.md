@@ -68,7 +68,7 @@ The performance is measured as Spearman's $\rho$ correlation coefficient for the
 
 Currently, we support only one category of evaluation, which representation transfer, where a featurization method or representation learning model encodes each peptide into a single vector that then is used to train a machine learning model (LightGBM) to predict the associated label.
 
-Submissions can be made through a dedicated issue (Issue type: Submission), we expect a zip file with the `Results/` directory generated from running the `rep_transfer/evaluation.py` and `rep_transfer/evaluation_joint.py`. You may need to adapt the `rep_transfer/represent_peptides.py` file to support your new featurization method/strategy/model.
+Submissions can be made through a dedicated issue (Issue type: Submission), we expect a zip file with the `Results/` directory generated from running the `rep_transfer/evaluation.py` and `rep_transfer/evaluation_joint.py`.
 
 If you have any doubts as to how to run this models, please do not hesitate to open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie).
 
