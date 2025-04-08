@@ -297,7 +297,8 @@ def experiment(dataset: str, model: str, representation: str,
     for s in ['c', 'nc']:
         x_type[s] = []
         for idx, rep in enumerate(representation.split(',')):
-            t_x = json.load(open(osp.join('reps', f'{rep}_{s}-{dataset}.json')))
+            t_x = json.load(open(osp.join(osp.dirname(__file__),
+                                          '..', 'reps', f'{rep}_{s}-{dataset}.json')))
             t_x = np.array(t_x)
             if pca_pre > 0.1:
                 pca_calc = decomp.PCA(pca_pre, svd_solver='full')
@@ -383,46 +384,18 @@ def experiment(dataset: str, model: str, representation: str,
 def main(dataset: str, model: str, representation: str,
          type: str, pca_pre: float, pca_post: float, n_trials: int = 200,
          n_seeds: int = 5):
-    if dataset == 'binding':
-        similarity_metric_c = 'jaccard'
-        radius_c = 4
-        fp_c = 'mapc'
-        similarity_metric_nc = 'jaccard'
-        radius_nc = 10
-        fp_nc = 'mapc'
-    elif dataset == 'cpp':
-        similarity_metric_c = 'jaccard'
-        radius_c = 4
-        fp_c = 'mapc'
-        similarity_metric_nc = 'jaccard'
-        radius_nc = 6
-        fp_nc = 'mapc'
-    elif dataset == 'antibacterial':
-        similarity_metric_c = 'jaccard'
-        radius_c = 4
-        fp_c = 'mapc'
-        similarity_metric_nc = 'tanimoto'
-        radius_nc = 6
-        fp_nc = 'ecfp'
-    elif dataset == 'antiviral':
-        similarity_metric_c = 'mmseqs+prefilter'
-        radius_c = 0
-        fp_c = 'na'
-        similarity_metric_nc = 'jaccard'
-        radius_nc = 6
-        fp_nc = 'mapc'
 
     part_dir = os.path.join(
-        os.path.dirname(__file__), '..', '..', 'partitions'
+        os.path.dirname(__file__), '..', 'partitions'
     )
     data_path = os.path.join(
-        os.path.dirname(__file__), '..', '..', 'downstream_data'
+        os.path.dirname(__file__), '..', 'downstream_data'
     )
     part_path_c = os.path.join(
-        part_dir, f"c-{dataset}_{similarity_metric_c}_{fp_c}_{radius_c}.gz"
+        part_dir, f"c-{dataset}.gz"
     )
     part_path_nc = os.path.join(
-        part_dir, f"nc-{dataset}_{similarity_metric_nc}_{fp_nc}_{radius_nc}.gz"
+        part_dir, f"nc-{dataset}.gz"
     )
     os.makedirs(part_dir, exist_ok=True)
 
@@ -440,7 +413,7 @@ def main(dataset: str, model: str, representation: str,
     warnings.filterwarnings('ignore')
     optuna.logging.set_verbosity(optuna.logging.CRITICAL)
     results_dir = os.path.join(
-        os.path.dirname(__file__), '..', '..',
+        os.path.dirname(__file__), '..',
         'Results', type
     )
     results_path = os.path.join(

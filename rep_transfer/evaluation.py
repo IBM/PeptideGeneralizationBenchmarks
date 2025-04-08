@@ -25,7 +25,7 @@ from sklearn.metrics import (matthews_corrcoef, root_mean_squared_error,
                              mean_absolute_error)
 # from represent_peptides import calculate_molformer
 from tqdm import tqdm
-from autopeptideml.reps.lms import RepEngineLM
+# from autopeptideml.reps.lms import RepEngineLM
 
 
 def calculate_chemberta(dataset: str):
@@ -34,15 +34,15 @@ def calculate_chemberta(dataset: str):
     device = 'mps'
     batch_size = 32
     out_path = os.path.join(os.path.dirname(__file__),
-        '..', '..', 'reps', f'chemberta_{dataset}.json')
+        '..', 'reps', f'chemberta_{dataset}.json')
     if os.path.exists(out_path):
         return np.array(json.load(open(out_path)))
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     tokenizer = hf.AutoTokenizer.from_pretrained(
         'DeepChem/ChemBERTa-77M-MLM', trust_remote_code=True
@@ -79,15 +79,15 @@ def calculate_molformer(dataset: str):
     device = 'mps'
     batch_size = 32
     out_path = os.path.join(os.path.dirname(__file__),
-        '..', '..', 'reps', f'molformer_{dataset}.json')
+        '..', 'reps', f'molformer_{dataset}.json')
     if os.path.exists(out_path):
         return np.array(json.load(open(out_path)))
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     tokenizer = hf.AutoTokenizer.from_pretrained(
         'ibm/MoLFormer-XL-both-10pct', trust_remote_code=True
@@ -449,18 +449,17 @@ def experiment(dataset: str, model: str, representation: str,
     return result_df
 
 
-def main(dataset: str, model: str, similarity_metric: str,
-         fp: str, representation: str, radius: int,
+def main(dataset: str, model: str, representation: str,
          n_trials: int = 200, n_seeds: int = 5):
 
     part_dir = os.path.join(
-        os.path.dirname(__file__), '..', '..', 'partitions'
+        os.path.dirname(__file__), '..', 'partitions'
     )
     data_path = os.path.join(
-        os.path.dirname(__file__), '..', '..', 'downstream_data'
+        os.path.dirname(__file__), '..', 'downstream_data'
     )
     part_path = os.path.join(
-        part_dir, f"{dataset}_{similarity_metric}_{fp}_{radius}.gz"
+        part_dir, f"{dataset}.gz"
     )
     os.makedirs(part_dir, exist_ok=True)
 
@@ -471,19 +470,17 @@ def main(dataset: str, model: str, similarity_metric: str,
         hdg = HestiaGenerator(df)
         hdg.from_precalculated(part_path)
     else:
-        hdg = define_hestia_generator(dataset, df, similarity_metric, fp,
-                                      radius)
-        hdg.save_precalculated(part_path)
+        raise NotImplementedError("Please make sure you have downloaded the official partitions.")
 
     warnings.filterwarnings('ignore')
     optuna.logging.set_verbosity(optuna.logging.CRITICAL)
     results_dir = os.path.join(
-        os.path.dirname(__file__), '..', '..',
-        'BILN', 'similarity'
+        os.path.dirname(__file__), '..',
+        'Results', 'no-generalisation',
     )
     results_path = os.path.join(
         results_dir,
-        f'{dataset}_{model}_{similarity_metric}_{fp}_{radius}_{representation}.csv'
+        f"{dataset}_{model}_pre_0.0_post_0.0_{representation}.csv"
     )
     os.makedirs(results_dir, exist_ok=True)
 

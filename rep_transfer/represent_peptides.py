@@ -16,16 +16,16 @@ def calculate_esm(dataset: str, model: str):
     re.move_to_device('mps')
     out_path = os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps', f'{model}_{dataset}.json'
+        '..', 'reps', f'{model}_{dataset}.json'
     )
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     if os.path.exists(out_path):
         return json.load(open(out_path))
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     fp = re.compute_reps(df.sequence.tolist(), average_pooling=True, batch_size=64 if re.get_num_params() < 1e8 else 16)
     fp = [f.tolist() for f in fp]
@@ -38,16 +38,16 @@ def calculate_ecfp(dataset: str):
 
     out_path = os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps', f'ecfp_{dataset}.json'
+        '..', 'reps', f'ecfp_{dataset}.json'
     )
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     if os.path.exists(out_path):
         return json.load(open(out_path))
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     fpgen = rdFingerprintGenerator.GetMorganGenerator(
         radius=8, fpSize=2_048
@@ -65,6 +65,39 @@ def calculate_ecfp(dataset: str):
     json.dump(fps, open(os.path.join(out_path), 'w'))
 
 
+def calculate_ecfp_count(dataset: str):
+    from rdkit import Chem
+    from rdkit.Chem import rdFingerprintGenerator
+
+    out_path = os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps', f'ecfp-count_{dataset}.json'
+    )
+    os.makedirs((os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps')), exist_ok=True)
+    if os.path.exists(out_path):
+        return json.load(open(out_path))
+    df = pd.read_csv(os.path.join(
+        os.path.dirname(__file__),
+        '..', 'downstream_data', f'{dataset}.csv'
+    ))
+    fpgen = rdFingerprintGenerator.GetMorganGenerator(
+        radius=8, fpSize=2_048, countSimulation=True
+    )
+
+    def _get_fp(smile: str):
+        mol = Chem.MolFromSmiles(smile)
+        fp = fpgen.GetFingerprintAsNumPy(mol).astype(np.int32)
+        return fp
+
+    fps = thread_map(
+        _get_fp, df['SMILES'], max_workers=8
+    )
+    fps = np.stack(fps).tolist()
+    json.dump(fps, open(os.path.join(out_path), 'w'))
+
+
 def calculate_chemberta(dataset: str):
     import transformers as hf
     import torch
@@ -72,15 +105,15 @@ def calculate_chemberta(dataset: str):
     device = 'mps'
     batch_size = 32
     out_path = os.path.join(os.path.dirname(__file__),
-        '..', '..', 'reps', f'chemberta_{dataset}.json')
+        '..', 'reps', f'chemberta_{dataset}.json')
     if os.path.exists(out_path):
         return np.array(json.load(open(out_path)))
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     tokenizer = hf.AutoTokenizer.from_pretrained(
         'DeepChem/ChemBERTa-77M-MLM', trust_remote_code=True
@@ -118,15 +151,15 @@ def calculate_molformer(dataset: str):
     device = 'mps'
     batch_size = 32
     out_path = os.path.join(os.path.dirname(__file__),
-        '..', '..', 'reps', f'molformer_{dataset}.json')
+        '..', 'reps', f'molformer_{dataset}.json')
     if os.path.exists(out_path):
         return np.array(json.load(open(out_path)))
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     tokenizer = hf.AutoTokenizer.from_pretrained(
         'ibm/MoLFormer-XL-both-10pct', trust_remote_code=True
@@ -164,15 +197,15 @@ def calculate_pepclm(dataset: str):
     device = 'mps'
     batch_size = 8
     out_path = os.path.join(os.path.dirname(__file__),
-        '..', '..', 'reps', f'pepclm_{dataset}.json')
+        '..', 'reps', f'pepclm_{dataset}.json')
     if os.path.exists(out_path):
         return json.load(open(out_path))
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     tokenizer = SMILES_SPE_Tokenizer(
         os.path.join(os.path.dirname(__file__), 'utils',
@@ -209,16 +242,16 @@ def calculate_pepfunnfp(dataset: str):
 
     out_path = os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps', f'pepfunn_{dataset}.json'
+        '..', 'reps', f'pepfunn_{dataset}.json'
     )
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     if os.path.exists(out_path):
         return json.load(open(out_path))
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
     n_bits = 2048
 
@@ -253,14 +286,14 @@ def calculate_pepland(dataset: str):
 
     out_path = os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps', f'pepland_{dataset}.json'
+        '..', 'reps', f'pepland_{dataset}.json'
     )
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'reps')), exist_ok=True)
+        '..', 'reps')), exist_ok=True)
     df = pd.read_csv(os.path.join(
         os.path.dirname(__file__),
-        '..', '..', 'downstream_data', f'{dataset}.csv'
+        '..', 'downstream_data', f'{dataset}.csv'
     ))
 
     embds = run(df.SMILES.tolist(), 1)
@@ -272,6 +305,9 @@ def main(dataset: str, rep: str):
     if rep == 'ecfp':
         print('Calculating ECFP representations...')
         calculate_ecfp(dataset)
+    elif rep == 'ecfp-count':
+        print('Calculating ECFP count representations...')
+        calculate_ecfp_count(dataset)
     elif rep == 'molformer':
         print('Calculating MolFormer-XL representations...')
         calculate_molformer(dataset)
