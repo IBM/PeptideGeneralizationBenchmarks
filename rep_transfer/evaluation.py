@@ -426,7 +426,12 @@ def experiment(dataset: str, model: str, representation: str,
     y = df.labels.to_numpy()
     results = []
     for th, partitions in hdg.get_partitions(filter=0.185):
+        if th != 'random':
+            if (th * 100) % 10 != 0:
+                continue
+
         print("THRESHOLD:", th)
+
         train_idx = partitions['train']
         valid_idx = partitions['valid']
         test_idx = partitions['test']
