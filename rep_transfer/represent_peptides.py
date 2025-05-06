@@ -9,11 +9,11 @@ from tqdm import tqdm
 from tqdm.contrib.concurrent import thread_map
 
 
-def calculate_esm(dataset: str, model: str):
+def calculate_esm(dataset: str, model: str, device: str):
     from autopeptideml.reps.lms import RepEngineLM
 
     re = RepEngineLM(model, average_pooling=True)
-    re.move_to_device('mps')
+    re.move_to_device(device)
     out_path = os.path.join(
         os.path.dirname(__file__),
         '..', 'reps', f'{model}_{dataset}.json'
@@ -27,7 +27,8 @@ def calculate_esm(dataset: str, model: str):
         os.path.dirname(__file__),
         '..', 'downstream_data', f'{dataset}.csv'
     ))
-    fp = re.compute_reps(df.sequence.tolist(), average_pooling=True, batch_size=64 if re.get_num_params() < 1e8 else 16)
+    fp = re.compute_reps(df.sequence.tolist(),
+                         batch_size=64 if re.get_num_params() < 1e8 else 16)
     fp = [f.tolist() for f in fp]
     json.dump(fp, open(os.path.join(out_path), 'w'))
 
@@ -301,7 +302,7 @@ def calculate_pepland(dataset: str):
     json.dump(embds, open(out_path, 'w'))
 
 
-def main(dataset: str, rep: str):
+def main(dataset: str, rep: str, device: str = 'mps'):
     if rep == 'ecfp':
         print('Calculating ECFP representations...')
         calculate_ecfp(dataset)
@@ -325,7 +326,7 @@ def main(dataset: str, rep: str):
         calculate_pepfunnfp(dataset)
     elif 'esm' in rep or 'prot' in rep:
         print(f'Calculating {rep.upper()} representations...')
-        calculate_esm(dataset, rep)
+        calculate_esm(dataset, rep, device)
 
 
 if __name__ == '__main__':
