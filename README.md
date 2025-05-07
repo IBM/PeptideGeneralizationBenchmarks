@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-This set of benchmarks are meant to evaluate the  ability of peptide representation methods and models to provide meaningful features of canonical and non-canonical peptides useful for machine learning. The main metric the benchmark measures is the ability of a representation technique to extrapolate from canonical peptides to non-canonical peptides, as this is the most common scenario in real-world pharmaceutical development.
+This set of benchmarks is meant to evaluate the  ability of peptide representation methods and models to provide meaningful features of canonical and non-canonical peptides useful for machine learning. The main metric the benchmark measures is the ability of a representation technique to extrapolate from canonical peptides to non-canonical peptides, as this is the most common scenario in real-world pharmaceutical development.
 
 Here, we define canonical peptides as those protein sequences with less than 50 amino acids and composed by the 20 standard amino acids; non-canonical peptides are defined as peptides with chemical modifications either in the back-bone, cyclizations, or modified or wholly synthetical side-chains.
 
@@ -17,7 +17,7 @@ The benchmark is currently integrated by four different prediction tasks:
 3. Antibacterial activity (Classification)
 4. Antiviral activity (Classification)
 
-For each of these tasks there are two subsets of data (canonical), the file starts with `c-` and non-canonical, file starts with `nc-`. We are continuously looking to improve the benchmarks and make them more comprehensive so we welcome any suggestions for tasks or datasets that may be relevant for 1) drug development or 2) bio-catalyst optimization. If you have a suggestion, please open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie)
+For each of these tasks there are two subsets of data: canonical (the file starts with `c-`) and non-canonical (file starts with `nc-`). We are continuously looking to improve the benchmarks and make them more comprehensive so we welcome any suggestions for tasks or datasets that may be relevant for 1) drug development or 2) bio-catalyst optimization. If you have a suggestion, please open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie)
 
 ## 3. Running the benchmarks
 
@@ -66,11 +66,11 @@ All datasets have been partitioned using the Hestia-GOOD framework (more informa
 
 The performance is measured as Spearman's $\rho$ correlation coefficient for the regression tasks and as Matthew's Correlation coefficient for binary classification tasks. 
 
-Currently, we support only one category of evaluation, which representation transfer, where a featurization method or representation learning model encodes each peptide into a single vector that then is used to train a machine learning model (LightGBM) to predict the associated label.
+Currently, we support only one category of evaluation, representation transfer, where a featurization method or representation learning model encodes each peptide into a single vector that then is used to train a machine learning model (LightGBM) to predict the associated label.
 
 Submissions can be made through a dedicated issue (Issue type: Submission), we expect a zip file with the `Results/` directory generated from running the `rep_transfer/evaluation.py` and `rep_transfer/evaluation_joint.py`.
 
-If you have any doubts as to how to run this models, please do not hesitate to open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie).
+If you have any doubts as to how to run the scripts, please do not hesitate to open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie).
 
 ## 5. Leaderboards
 
