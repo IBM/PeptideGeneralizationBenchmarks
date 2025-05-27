@@ -382,7 +382,8 @@ def experiment(dataset: str, model: str, representation: str,
 
 
 def main(dataset: str, model: str, representation: str,
-         type: str, pca_pre: float, pca_post: float, n_trials: int = 200,
+         type: str, pca_pre: float = 0, pca_post: float = 0,
+         n_trials: int = 200,
          n_seeds: int = 5):
 
     part_dir = os.path.join(
