@@ -9,9 +9,43 @@ from tqdm import tqdm
 from tqdm.contrib.concurrent import thread_map
 
 
+def calculate_fragfp(dataset: str):
+    from fragfp import FragFPGenerator
+
+    out_path = os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps', f'fragfp_{dataset}.json'
+    )
+    os.makedirs((os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps')), exist_ok=True)
+    if os.path.exists(out_path):
+        return json.load(open(out_path))
+    df = pd.read_csv(os.path.join(
+        os.path.dirname(__file__),
+        '..', 'downstream_data', f'{dataset}.csv'
+    ))
+    fpgen = FragFPGenerator(
+        in_radius=2, fpSize=2_048, out_radius=2
+    )
+    fps = thread_map(
+        fpgen, df['SMILES'], max_workers=8
+    )
+    fps = np.stack(fps)
+    print(len(fps[fps.sum(1) > 1]))
+    fps = fps.tolist()
+    json.dump(fps, open(os.path.join(out_path), 'w'))
+
+
 def calculate_esm(dataset: str, model: str, device: str):
     from autopeptideml.reps.lms import RepEngineLM
+    from autopeptideml.pipeline import Pipeline, SmilesToSequence, CanonicalCleaner
 
+    pipe = Pipeline(
+        elements=[SmilesToSequence(keep_analog=False),
+                  CanonicalCleaner(substitution='X')],
+        name='pipe',
+    )
     re = RepEngineLM(model, average_pooling=True)
     re.move_to_device(device)
     out_path = os.path.join(
@@ -27,8 +61,11 @@ def calculate_esm(dataset: str, model: str, device: str):
         os.path.dirname(__file__),
         '..', 'downstream_data', f'{dataset}.csv'
     ))
-    fp = re.compute_reps(df.sequence.tolist(),
-                         batch_size=64 if re.get_num_params() < 1e8 else 16)
+    if 'sequence' in df.columns:
+        seqs = df.sequence.tolist()
+    else:
+        seqs = pipe(df['SMILES'].tolist())
+    fp = re.compute_reps(seqs, batch_size=64 if re.get_num_params() < 1e8 else 16)
     fp = [f.tolist() for f in fp]
     json.dump(fp, open(os.path.join(out_path), 'w'))
 
@@ -324,9 +361,12 @@ def main(dataset: str, rep: str, device: str = 'mps'):
     elif rep == 'pepfunn':
         print('Calculating pepfunn fingerprint...')
         calculate_pepfunnfp(dataset)
-    elif 'esm' in rep or 'prot' in rep:
+    elif 'esm' in rep or 'prot' in rep or 'prost' in rep:
         print(f'Calculating {rep.upper()} representations...')
         calculate_esm(dataset, rep, device)
+    elif 'fragfp' in rep:
+        print(f'Calculating FragFP representations...')
+        calculate_fragfp(dataset)
 
 
 if __name__ == '__main__':
