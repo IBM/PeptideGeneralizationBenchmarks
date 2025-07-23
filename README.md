@@ -17,7 +17,9 @@ The benchmark is currently integrated by four different prediction tasks:
 3. Antibacterial activity (Classification)
 4. Antiviral activity (Classification)
 
-For each of these tasks there are two subsets of data: canonical (the file starts with `c-`) and non-canonical (file starts with `nc-`). We are continuously looking to improve the benchmarks and make them more comprehensive so we welcome any suggestions for tasks or datasets that may be relevant for 1) drug development or 2) bio-catalyst optimization. If you have a suggestion, please open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie)
+For each of these tasks there are two subsets of data: canonical (the file starts with `c-`) and non-canonical (file starts with `nc-`). We are continuously looking to improve the benchmarks and make them more comprehensive so we welcome any suggestions for tasks or datasets that may be relevant for 1) drug development or 2) bio-catalyst optimization. If you have a suggestion, please open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie).
+
+The representations can be downloaded from here: [PeptideGeneralizationBenchmarks - Representations](https://drive.google.com/file/d/1MySH5qBAHpAkHYqIAkkMS7rj8QJBZEBJ/view?usp=sharing).
 
 ## 3. Running the benchmarks
 
