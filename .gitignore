@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+reps/
 .Python
 build/
 develop-eggs/
@@ -25,6 +26,9 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+figures/
+si_figures/
+si_figures.ipynb
 MANIFEST
 *.json
 

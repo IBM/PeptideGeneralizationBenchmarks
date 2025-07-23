@@ -23,5 +23,5 @@ learning_rate:
   log: True
 
 verbose:
-  type: fixed-int
+  type: fixed
   value: -1

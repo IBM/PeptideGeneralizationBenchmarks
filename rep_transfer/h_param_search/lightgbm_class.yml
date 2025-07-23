@@ -5,7 +5,7 @@ n_estimators:
   log: False
 
 class_weight:
-  type: fixed-string
+  type: fixed
   value: balanced
 
 min_split_gain:
@@ -27,5 +27,5 @@ learning_rate:
   log: True
 
 verbose:
-  type: fixed-int
+  type: fixed
   value: -1

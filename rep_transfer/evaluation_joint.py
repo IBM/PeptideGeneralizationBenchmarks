@@ -382,7 +382,7 @@ def experiment(dataset: str, model: str, representation: str,
 
 
 def main(dataset: str, model: str, representation: str,
-         type: str, pca_pre: float = 0, pca_post: float = 0,
+         type: str = 'canonical', pca_pre: float = 0, pca_post: float = 0,
          n_trials: int = 200,
          n_seeds: int = 5):
 
