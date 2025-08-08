@@ -40,7 +40,7 @@ To compute the representations and run all the benchmarks simply run:
 
 ```bash
 ./run_all.sh <name-of-representation> svm
-.run_all.sh <name-of-representation> lightgbm
+./run_all.sh <name-of-representation> lightgbm
 ```
 
 ## 3.3 Statistical analysis of the results
