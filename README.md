@@ -2,9 +2,9 @@
 
 ## 1. Introduction
 
-This set of benchmarks is meant to evaluate the  ability of peptide representation methods and models to provide meaningful features of canonical and non-canonical peptides useful for machine learning. The main metric the benchmark measures is the ability of a representation technique to extrapolate from canonical peptides to non-canonical peptides, as this is the most common scenario in real-world pharmaceutical development.
+This set of benchmarks is meant to evaluate the  ability of peptide representation methods and models to provide meaningful features of standard and modified peptides useful for machine learning. The main metric the benchmark measures is the ability of a representation technique to extrapolate from standard to modified peptides, as this is the most common scenario in real-world pharmaceutical development.
 
-Here, we define canonical peptides as those protein sequences with less than 50 amino acids and composed by the 20 standard amino acids; non-canonical peptides are defined as peptides with chemical modifications either in the back-bone, cyclizations, or modified or wholly synthetical side-chains.
+Here, we define standard peptides as those protein sequences with less than 50 amino acids and composed by the 20 canonical amino acids; modified peptides are defined as peptides with chemical modifications either in the back-bone, cyclizations, or any non-canonical side-chains.
 
 If you want to learn more, please check out our [paper preprint](https://chemrxiv.org/engage/chemrxiv/article-details/67d2f3ae81d2151a023d64f8).
 
@@ -17,7 +17,7 @@ The benchmark is currently integrated by four different prediction tasks:
 3. Antibacterial activity (Classification)
 4. Antiviral activity (Classification)
 
-For each of these tasks there are two subsets of data: canonical (the file starts with `c-`) and non-canonical (file starts with `nc-`). We are continuously looking to improve the benchmarks and make them more comprehensive so we welcome any suggestions for tasks or datasets that may be relevant for 1) drug development or 2) bio-catalyst optimization. If you have a suggestion, please open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie).
+For each of these tasks there are two subsets of data: standard (the file starts with `c-`) and modified (file starts with `nc-`). We are continuously looking to improve the benchmarks and make them more comprehensive so we welcome any suggestions for tasks or datasets that may be relevant for 1) drug development or 2) bio-catalyst optimization. If you have a suggestion, please open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie).
 
 The representations can be downloaded from here: [PeptideGeneralizationBenchmarks - Representations](https://drive.google.com/file/d/1MySH5qBAHpAkHYqIAkkMS7rj8QJBZEBJ/view?usp=sharing).
 
@@ -32,30 +32,16 @@ cd PeptideGeneralizationBenchmarks
 
 ### 3.1 Prepare peptide representations
 
-Then you will need to adapt the `rep_transfer/represent_peptides.py` file to account for your peptide representation/featurization method/model. The output should be a matrix with $`N \times E`$ with $`N`$ being the number of peptides in each dataset and $`E`$ the dimensions of the embedding space. The order of the peptide representations should be the same as in the `downstream_data/` datasets. It is run by:
+Then you will need to adapt the `rep_transfer/represent_peptides.py` file to account for your peptide representation/featurization method/model. The output should be a matrix with $`N \times E`$ with $`N`$ being the number of peptides in each dataset and $`E`$ the dimensions of the embedding space. 
+
+### 3.2 Run all the benchmarks
+
+To compute the representations and run all the benchmarks simply run:
 
 ```bash
-python rep_transfer/represent_peptides $dataset $name_of_your_representation
+./run_all.sh <name-of-representation> svm
+.run_all.sh <name-of-representation> lightgbm
 ```
-
-### 3.2 Run the benchmarks
-
-The first two benchmarks (canonical and non-canonical representation) can be easily run by:
-
-```bash
-python rep_transfer/evaluation.py $dataset lightgbm $name_of_your_representation
-```
-
-Here the datasets are the names of the files in `downstream_data/`, so you should run 8 different calculations. The script will automatically run all thresholds and the 5 different seeds. Please do not change anything in the configuration or the HPO configuration to ensure fair comparison between methods.
-
-To run the canonical to non-canonical extrapolation execute:
-
-```bash
-python rep_transfer/evaluation_joint.py $dataset lightgbm $name_of_your_representation canonical
-```
-
-Here the datasets are as follows: `antibacterial`, `antiviral`, `binding`, and `cpp`. Basically, the files in `downstream_data/` without the starting `c-` or `nc-`.
-
 
 ## 3.3 Statistical analysis of the results
 
@@ -75,49 +61,62 @@ Submissions can be made through a dedicated issue (Issue type: Submission), we e
 If you have any doubts as to how to run the scripts, please do not hesitate to open an [issue](https://github.com/IBM/PeptideGeneralizationBenchmarks/issues) or contact us at [raul.fernandezdiaz@ucdconnect.ie](mailto:raul.fernandezdiaz@ucdconnect.ie).
 
 ## 5. Leaderboards
+### 5.1. Interpolation standard to standard peptides
 
-### 5.1. Representation of canonical peptides
+Results with
 
-The first subtask only concerns the files with canonical peptides. 
+| Representation | Antibacterial   | Antiviral   | Cell penetration   | Protein-peptide binding affinity   | Average   |   Significant rank |
+|:---------------|:----------------|:------------|:-------------------|:-----------------------------------|:----------|-------------------:|
+| ESM2 8M        | 0.81±0.02       | 0.78±0.01   | 0.91±0.01          | 0.90±0.01                          | 0.85±0.01 |                  1 |
+| ESM2 650M      | 0.81±0.02       | 0.76±0.01   | 0.92±0.01          | 0.91±0.00                          | 0.84±0.01 |                  1 |
+| ECFP-16 counts | 0.79±0.02       | 0.75±0.01   | 0.94±0.01          | 0.91±0.01                          | 0.84±0.01 |                  1 |
+| Prot-T5-XL     | 0.81±0.02       | 0.77±0.01   | 0.91±0.01          | 0.90±0.00                          | 0.84±0.01 |                  1 |
+| ESM2 150M      | 0.81±0.02       | 0.74±0.01   | 0.91±0.01          | 0.90±0.01                          | 0.83±0.01 |                  1 |
+| ECFP-16        | 0.77±0.02       | 0.74±0.01   | 0.92±0.01          | 0.90±0.01                          | 0.83±0.01 |                  1 |
+| ChemBERTa-2    | 0.80±0.02       | 0.73±0.01   | 0.90±0.01          | 0.89±0.01                          | 0.82±0.01 |                  1 |
+| ProtBERT       | 0.79±0.02       | 0.71±0.01   | 0.91±0.01          | 0.92±0.01                          | 0.82±0.01 |                  1 |
+| Pepland        | 0.78±0.02       | 0.70±0.01   | 0.88±0.01          | 0.89±0.01                          | 0.81±0.01 |                  2 |
+| PeptideCLM     | 0.79±0.02       | 0.71±0.01   | 0.90±0.01          | 0.86±0.00                          | 0.81±0.01 |                  2 |
+| Molformer-XL   | 0.77±0.02       | 0.68±0.02   | 0.91±0.01          | 0.88±0.01                          | 0.80±0.01 |                  2 |
+| PepFuNN        | 0.68±0.02       | 0.73±0.01   | 0.89±0.01          | 0.76±0.01                          | 0.76±0.01 |                  3 |
+| Avalon FP      | 0.68±0.02       | 0.73±0.01   | 0.85±0.02          | 0.62±0.01                          | 0.72±0.01 |                  4 |
 
-| Representation      | Antiviral (canonical)   | Protein-peptide binding affinity (canonical)   | Cell penetration (canonical)   | Antibacterial (canonical)   | Average     | Significant rank   |
-|:--------------------|:------------------------|:-----------------------------------------------|:-------------------------------|:----------------------------|:------------|:-------------------|
-| ESM2 8M             | 0.78 ± 0.01             | 0.90 ± 0.01                                    | 0.91 ± 0.01                    | 0.81 ± 0.02                 | 0.85 ± 0.01 | **--1--**          |
-| ECFP-16 with counts | 0.75 ± 0.01             | 0.91 ± 0.01                                    | 0.94 ± 0.01                    | 0.79 ± 0.02                 | 0.84 ± 0.01 | **--1--**          |
-| Prot-T5-XL          | 0.77 ± 0.01             | 0.90 ± 0.00                                    | 0.91 ± 0.01                    | 0.81 ± 0.02                 | 0.84 ± 0.01 | **--1--**          |
-| ESM2 150M           | 0.76 ± 0.01             | 0.88 ± 0.01                                    | 0.91 ± 0.01                    | 0.81 ± 0.02                 | 0.83 ± 0.01 | 2                  |
-| ECFP-16             | 0.74 ± 0.01             | 0.90 ± 0.01                                    | 0.92 ± 0.01                    | 0.77 ± 0.02                 | 0.83 ± 0.01 | 2                  |
-| ChemBERTa-2         | 0.73 ± 0.01             | 0.89 ± 0.01                                    | 0.90 ± 0.01                    | 0.80 ± 0.02                 | 0.82 ± 0.01 | 2                  |
-| PeptideCLM          | 0.71 ± 0.01             | 0.86 ± 0.00                                    | 0.90 ± 0.01                    | 0.79 ± 0.02                 | 0.81 ± 0.01 | 3                  |
-| Pepland             | 0.70 ± 0.01             | 0.89 ± 0.01                                    | 0.88 ± 0.01                    | 0.78 ± 0.02                 | 0.81 ± 0.01 | 3                  |
-| Molformer-XL        | 0.68 ± 0.02             | 0.88 ± 0.01                                    | 0.91 ± 0.01                    | 0.77 ± 0.02                 | 0.80 ± 0.01 | 4                  |
-| PepFuNN             | 0.73 ± 0.01             | 0.76 ± 0.01                                    | 0.89 ± 0.01                    | 0.68 ± 0.02                 | 0.76 ± 0.01 | 5                  |
+### 5.2. Interpolation modified to modified peptides
 
-## 5.2. Representation of non-canonical peptides
+Results with LightGBM.
 
-The second subtask only concerns non-canonical peptides. Kruskal-Wallis $p=3\times10^{-7} $
-
-| Representation      | Antiviral (non-canonical)   | Antibacterial (non-canonical)   | Protein-peptide binding affinity (non-canonical)   | Cell penetration (non-canonical)   | Average     | Significant rank   |
-|:--------------------|:----------------------------|:--------------------------------|:---------------------------------------------------|:-----------------------------------|:------------|:-------------------|
-| Molformer-XL        | 0.91 ± 0.01                 | 0.88 ± 0.01                     | 0.85 ± 0.02                                        | 0.89 ± 0.01                        | 0.88 ± 0.01 | **--1--**          |
-| ChemBERTa-2         | 0.91 ± 0.01                 | 0.87 ± 0.00                     | 0.88 ± 0.01                                        | 0.84 ± 0.02                        | 0.88 ± 0.01 | **--1--**          |
-| ECFP-16             | 0.87 ± 0.01                 | 0.90 ± 0.01                     | 0.87 ± 0.01                                        | 0.71 ± 0.02                        | 0.84 ± 0.01 | **--1--**          |
-| PeptideCLM          | 0.83 ± 0.02                 | 0.88 ± 0.00                     | 0.85 ± 0.01                                        | 0.78 ± 0.01                        | 0.83 ± 0.01 | 2                  |
-| ECFP-16 with counts | 0.87 ± 0.01                 | 0.89 ± 0.01                     | 0.86 ± 0.02                                        | 0.65 ± 0.04                        | 0.82 ± 0.01 | 3                  |
-| Pepland             | 0.78 ± 0.01                 | 0.85 ± 0.01                     | 0.83 ± 0.01                                        | 0.62 ± 0.02                        | 0.77 ± 0.01 | 3                  |
-| PepFuNN             | 0.74 ± 0.02                 | 0.88 ± 0.01                     | 0.73 ± 0.02                                        | 0.44 ± 0.01                        | 0.70 ± 0.02 | 4                  |
+|    Representation  | Antibacterial   | Antiviral   | Cell penetration   | Protein-peptide binding affinity   | Average   |   Significant rank |
+|:---------------|:----------------|:------------|:-------------------|:-----------------------------------|:----------|-------------------:|
+| Molformer-XL   | 0.88±0.01       | 0.91±0.01   | 0.89±0.01          | 0.85±0.02                          | 0.88±0.01 |                  1 |
+| ChemBERTa-2    | 0.87±0.00       | 0.91±0.01   | 0.84±0.02          | 0.88±0.01                          | 0.88±0.01 |                  1 |
+| Prot-T5-XL     | 0.87±0.01       | 0.84±0.02   | 0.93±0.01          | 0.84±0.02                          | 0.87±0.01 |                  1 |
+| Avalon FP      | 0.83±0.01       | 0.90±0.01   | 0.72±0.01          | 0.90±0.01                          | 0.85±0.01 |                  2 |
+| ProtBERT       | 0.85±0.01       | 0.87±0.02   | 0.87±0.01          | 0.81±0.02                          | 0.85±0.01 |                  2 |
+| ECFP-16        | 0.90±0.01       | 0.87±0.01   | 0.71±0.01          | 0.87±0.01                          | 0.84±0.01 |                  2 |
+| ESM2 650M      | 0.89±0.00       | 0.91±0.01   | 0.72±0.01          | 0.80±0.02                          | 0.83±0.01 |                  2 |
+| PeptideCLM     | 0.88±0.00       | 0.83±0.02   | 0.78±0.01          | 0.85±0.01                          | 0.83±0.01 |                  2 |
+| ECFP-16 counts | 0.89±0.01       | 0.87±0.01   | 0.65±0.04          | 0.86±0.02                          | 0.82±0.01 |                  2 |
+| ESM2 150M      | 0.86±0.01       | 0.91±0.01   | 0.60±0.02          | 0.82±0.02                          | 0.80±0.01 |                  2 |
+| ESM2 8M        | 0.78±0.01       | 0.89±0.02   | 0.68±0.02          | 0.82±0.02                          | 0.80±0.01 |                  3 |
+| Pepland        | 0.85±0.01       | 0.78±0.01   | 0.62±0.02          | 0.83±0.01                          | 0.77±0.01 |                  3 |
+| PepFuNN        | 0.88±0.01       | 0.74±0.02   | 0.44±0.01          | 0.73±0.02                          | 0.70±0.02 |                  4 |
 
 
-## 5.3. Generalisation from canonical to non-canonical
+## 5.3. Standard to modified extrapolation
 
-The last subtask measures how well models trained with each of the representations can generalise/extrapolate from a canonical training set to a non-canonical test set.
+The last subtask measures how well models trained with each of the representations can generalise/extrapolate from a standard training set to a modified test set.
 
-| Representation      | Protein-peptide binding affinity   | Antiviral   | Antibacterial   | Cell penetration   | Average     | Significant rank   |
-|:--------------------|:-----------------------------------|:------------|:----------------|:-------------------|:------------|:-------------------|
-| ChemBERTa-2         | 0.15 ± 0.01                        | 0.38 ± 0.02 | 0.27 ± 0.01     | 0.07 ± 0.01        | 0.22 ± 0.01 | **--1--**          |
-| ECFP-16             | 0.05 ± 0.01                        | 0.35 ± 0.02 | 0.32 ± 0.01     | 0.10 ± 0.02        | 0.20 ± 0.01 | 2                  |
-| PeptideCLM          | 0.32 ± 0.01                        | 0.16 ± 0.01 | 0.23 ± 0.01     | -0.06 ± 0.02       | 0.16 ± 0.01 | 3                  |
-| ECFP-16 with counts | 0.06 ± 0.01                        | 0.27 ± 0.02 | 0.32 ± 0.01     | -0.02 ± 0.01       | 0.15 ± 0.01 | 4                  |
-| PepFuNN             | -0.17 ± 0.02                       | 0.29 ± 0.01 | 0.38 ± 0.01     | 0.01 ± 0.02        | 0.11 ± 0.02 | 5                  |
-| Molformer-XL        | 0.14 ± 0.01                        | 0.11 ± 0.01 | 0.39 ± 0.01     | -0.15 ± 0.02       | 0.11 ± 0.02 | 6                  |
-| Pepland             | 0.05 ± 0.01                        | 0.15 ± 0.02 | -0.04 ± 0.01    | 0.20 ± 0.02        | 0.10 ± 0.01 | 7                  |
+|   Representation     | Antibacterial   | Antiviral   | Cell penetration   | Protein-peptide binding affinity   | Average   |   Significant rank |
+|:---------------|:----------------|:------------|:-------------------|:-----------------------------------|:----------|-------------------:|
+| PepFuNN        | 0.32±0.06       | 0.49±0.03   | -0.04±0.04         | 0.23±0.03                          | 0.25±0.04 |                  1 |
+| ECFP-16        | 0.25±0.06       | 0.54±0.03   | -0.08±0.04         | 0.08±0.03                          | 0.19±0.04 |                  1 |
+| ECFP-16 counts | 0.27±0.06       | 0.51±0.03   | -0.09±0.04         | 0.03±0.03                          | 0.18±0.04 |                  1 |
+| ChemBERTa-2    | 0.02±0.06       | 0.14±0.03   | 0.03±0.04          | 0.37±0.03                          | 0.14±0.04 |                  1 |
+| Prot-T5-XL     | 0.08±0.06       | 0.01±0.03   | 0.01±0.04          | 0.34±0.03                          | 0.11±0.04 |                  2 |
+| ESM2 150M      | 0.08±0.06       | -0.00±0.03  | 0.02±0.04          | 0.31±0.03                          | 0.10±0.04 |                  2 |
+| ESM2 650M      | -0.01±0.06      | 0.09±0.03   | 0.11±0.04          | 0.14±0.03                          | 0.08±0.04 |                  2 |
+| ProtBERT       | 0.02±0.06       | 0.02±0.03   | 0.05±0.04          | 0.24±0.03                          | 0.08±0.04 |                  2 |
+| Pepland        | 0.20±0.06       | -0.06±0.03  | 0.07±0.04          | 0.12±0.03                          | 0.08±0.04 |                  2 |
+| ESM2 8M        | 0.08±0.06       | 0.01±0.03   | -0.03±0.04         | 0.21±0.03                          | 0.07±0.04 |                  2 |
+| Molformer-XL   | 0.07±0.06       | 0.01±0.03   | 0.06±0.04          | 0.11±0.03                          | 0.06±0.04 |                  2 |
+| PeptideCLM     | -0.01±0.06      | 0.03±0.03   | -0.14±0.04         | 0.26±0.03                          | 0.04±0.04 |                  2 |
