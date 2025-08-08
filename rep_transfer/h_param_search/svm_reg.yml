@@ -11,11 +11,11 @@ epsilon:
   log: True
   
 tol:
-  type: fixed-float
+  type: fixed
   value: 1e-3
 
 max_iter:
-  type: fixed-int
+  type: fixed
   value: 1000
 
 kernel:

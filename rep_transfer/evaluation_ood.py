@@ -3,19 +3,15 @@ import yaml
 import os
 import os.path as osp
 
-from typing import Callable, Tuple
+from typing import Tuple
 
 import numpy as np
 import optuna
 import pandas as pd
 import typer
 
-from autopeptideml.train import (OptunaTrainer, evaluate,
-                                 VotingEnsemble)
+from autopeptideml.train import (OptunaTrainer, evaluate)
 from autopeptideml.utils import format_numbers
-from hestia.utils import _discretizer
-from sklearn.model_selection import StratifiedKFold
-
 
 REGRESSION_TASKS = ['binding']
 CLASSIFICATION_TASKS = ['cpp', 'antibacterial', 'antiviral']
@@ -47,15 +43,18 @@ def define_hpspace(model: str, pred_task: str) -> Tuple[dict, dict]:
 def hpo(pred_task: str, model_name: str, train_x: np.ndarray,
         train_y: np.ndarray, seed: int) -> dict:
     hpspace, optim_strategy = define_hpspace(model_name, pred_task)
-    trainer = OptunaTrainer(hpspace=hpspace, optim_strategy=optim_strategy)
-    kf = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
-
-    if pred_task == 'reg':
-        folds = [[fold for fold in kf.split(train_x, _discretizer(train_y))][0]]
-    else:
-        folds = [[fold for fold in kf.split(train_x, train_y)][0]]
-
-    trainer.hpo(folds, {'default': train_x}, train_y)
+    trainer = OptunaTrainer(task=pred_task)
+    trainer.hpo(
+        x={'default': train_x},
+        y=train_y,
+        models=[model_name],
+        n_folds=5,
+        n_trials=100,
+        n_jobs=10,
+        random_state=seed,
+        verbose=3,
+        custom_hpspace=hpspace
+    )
     return trainer.best_model
 
 
@@ -111,7 +110,7 @@ def experiment(dataset: str, model: str, representation: str,
     best_model = hpo(pred_task, model, train_x, train_y, seed)
 
     results = []
-    for idx, model in enumerate(best_model['models']):
+    for idx, model in enumerate(best_model.models):
         if pred_task == 'class':
             preds = model.predict_proba(test_x)
             preds = preds[:, 1]

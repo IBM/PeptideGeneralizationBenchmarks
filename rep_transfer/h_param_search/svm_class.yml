@@ -5,16 +5,20 @@ C:
   log: True
   
 tol:
-  type: fixed-float
+  type: fixed
   value: 1e-3
 
 class_weight:
-  type: fixed-string
+  type: fixed
   value: balanced
 
 max_iter:
-  type: fixed-int
+  type: fixed
   value: 1000
+
+probability:
+  type: fixed
+  value: True
 
 kernel:
   type: categorical
