@@ -92,10 +92,10 @@ def experiment(dataset: str, model: str, representation: str,
 
         results = []
         if pred_task == 'class':
-            preds = best_model.predict_proba({'default': test_x})
+            preds = best_model.predict_proba({'default': test_x})[0]
             preds = preds[:, 1]
         else:
-            preds = best_model.predict({'default': test_x})
+            preds = best_model.predict({'default': test_x})[0]
 
         result = evaluate(preds, test_y, pred_task=pred_task)
         result['seed'] = seed

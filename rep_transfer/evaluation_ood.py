@@ -112,10 +112,10 @@ def experiment(dataset: str, model: str, representation: str,
     results = []
     for idx, model in enumerate(best_model.models):
         if pred_task == 'class':
-            preds = model.predict_proba(test_x)
+            preds = model.predict_proba({'default': test_x})[0]
             preds = preds[:, 1]
         else:
-            preds = model.predict(test_x)
+            preds = model.predict({'default': test_x})[0]
         result = evaluate(preds, test_y, pred_task=pred_task)
         result['seed'] = seed + idx
         results.append(result)
@@ -156,6 +156,7 @@ def main(dataset: str, model: str, representation: str,
         results_df = pd.concat([results_df, result_df])
     results_df.to_csv(results_path, index=False)
     print(results_df.head())
+
 
 if __name__ == '__main__':
     typer.run(main)
