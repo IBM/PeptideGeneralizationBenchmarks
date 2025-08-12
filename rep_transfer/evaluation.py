@@ -74,6 +74,11 @@ def experiment(dataset: str, model: str, representation: str,
         open(osp.join('reps', f'{representation}_{dataset}.pickle'), 'rb')))
     y = df.labels.to_numpy()
 
+    if dataset == 'binding':
+        x = np.concatenate([x, np.stack(pickle.load(
+            open(osp.join(osp.dirname(__file__), '..', 'reps', 'binding-c-targets.pickle'), 'rb')
+        ))], axis=1)
+
     for th, partitions in hdg.get_partitions(filter=0.185):
         if th != 'random':
             if (th * 100) % 10 != 0:
