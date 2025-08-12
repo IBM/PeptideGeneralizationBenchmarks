@@ -73,6 +73,7 @@ def experiment(dataset: str, model: str, representation: str,
     x = np.array(pickle.load(
         open(osp.join('reps', f'{representation}_{dataset}.pickle'), 'rb')))
     y = df.labels.to_numpy()
+    results = []
 
     if dataset == 'binding':
         x = np.concatenate([x, np.stack(pickle.load(
@@ -80,10 +81,6 @@ def experiment(dataset: str, model: str, representation: str,
         ))], axis=1)
 
     for th, partitions in hdg.get_partitions(filter=0.185):
-        if th != 'random':
-            if (th * 100) % 10 != 0:
-                continue
-
         print("THRESHOLD:", th)
 
         train_idx = partitions['train']
@@ -94,8 +91,6 @@ def experiment(dataset: str, model: str, representation: str,
         test_x, test_y = x[test_idx], y[test_idx]
 
         best_model = hpo(pred_task, model, train_x, train_y, seed)
-
-        results = []
         if pred_task == 'class':
             preds = best_model.predict_proba({'default': test_x})[0]
             preds = preds[:, 1]
@@ -157,6 +152,7 @@ def main(dataset: str, model: str, representation: str,
             seed=i
         )
         results_df = pd.concat([results_df, result_df])
+        print(results_df.head(10))
     results_df.to_csv(results_path, index=False)
 
 
