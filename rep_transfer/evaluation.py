@@ -75,6 +75,11 @@ def experiment(dataset: str, model: str, representation: str,
     y = df.labels.to_numpy()
     results = []
 
+    if dataset == 'binding':
+        x = np.concatenate([x, np.stack(pickle.load(
+            open(osp.join(osp.dirname(__file__), '..', 'reps', 'binding-c-targets.pickle'), 'rb')
+        ))], axis=1)
+
     for th, partitions in hdg.get_partitions(filter=0.185):
         print("THRESHOLD:", th)
 
