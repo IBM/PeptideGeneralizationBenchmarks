@@ -75,8 +75,10 @@ def experiment(dataset: str, model: str, representation: str,
     for s in ['c', 'nc']:
         x_type[s] = []
         for idx, rep in enumerate(representation.split(',')):
-            t_x = pickle.load(open(osp.join(osp.dirname(__file__),
-                                          '..', 'reps', f'{rep}_{s}-{dataset}.pickle'), 'rb'))
+            t_x = pickle.load(
+                open(osp.join(osp.dirname(__file__),  '..', 'reps',
+                              f'{rep}_{s}-{dataset}.pickle'), 'rb')
+            )
             t_x = np.array(t_x)
             if idx == 0:
                 x = t_x
