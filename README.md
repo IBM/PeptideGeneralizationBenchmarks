@@ -6,7 +6,7 @@ This set of benchmarks is meant to evaluate the  ability of peptide representati
 
 Here, we define standard peptides as those protein sequences with less than 50 amino acids and composed by the 20 canonical amino acids; modified peptides are defined as peptides with chemical modifications either in the back-bone, cyclizations, or any non-canonical side-chains.
 
-If you want to learn more, please check out our [paper preprint](https://chemrxiv.org/engage/chemrxiv/article-details/67d2f3ae81d2151a023d64f8).
+If you want to learn more, please check out our [paper](https://link.springer.com/article/10.1186/s13321-025-01115-z). As this repository will continue to include the latest results, a static version of the repository at time of publication can be found [here](https://github.com/jcheminform/PeptideGeneralizationBenchmarks) or [here](https://github.com/IBM/PeptideGeneralizationBenchmarks/releases/tag/v.1.0.0).
 
 ## 2. Datasets
 
