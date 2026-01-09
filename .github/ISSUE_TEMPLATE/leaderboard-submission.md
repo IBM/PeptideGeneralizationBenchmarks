@@ -17,4 +17,4 @@ Submission information
 - [ ] I have not modified any of the training settings when running the evaluations.
 
 ---
-**Please remember to upload the `Results/` directory with your results compressed in `.zip` format**
+**Please remember to upload the `Results/` directory with your results compressed in `.zip` format or create a pull request with the new results included**
