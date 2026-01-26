@@ -81,6 +81,9 @@ def experiment(dataset: str, model: str, representation: str,
         ))], axis=1)
 
     for th, partitions in hdg.get_partitions(filter=0.185):
+        if not isinstance(th, str):
+            if not ((th * 100) % 10 == 0):
+                continue
         print("THRESHOLD:", th)
 
         train_idx = partitions['train']
