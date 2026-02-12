@@ -2,4 +2,4 @@ mlflow
 cloudpickle==3.1.2
 ipython==9.10.0
 torch==1.11.0
-tqdm==4.67.1
+tqdm==4.67.3
