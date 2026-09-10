@@ -38,37 +38,6 @@ def protein_data_binding(device: str):
     pickle.dump(fp, open(os.path.join(out_path2), 'wb'))
 
 
-def calculate_fragfp(dataset: str, radius: int):
-    from fragfp import FragFPGenerator
-
-    out_path = os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps', f'fragfp-{radius}_{dataset}.pickle'
-    )
-    os.makedirs((os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps')), exist_ok=True)
-    if os.path.exists(out_path):
-        return
-    df = pd.read_csv(os.path.join(
-        os.path.dirname(__file__),
-        '..', 'downstream_data', f'{dataset}.csv'
-    ))
-    fpgen = FragFPGenerator(
-       fpSize=2_048, out_radius=radius
-    )
-    fps = []
-    fps = thread_map(fpgen, df['SMILES'], max_workers=cpu_count())
-
-    # for smiles in tqdm(df['SMILES']):
-    #     print("-\n", smiles, "-\n")
-    #     fps.append(fpgen(smiles))
-    fps = np.stack(fps)
-    print(len(fps[fps.sum(1) > 1]))
-    fps = fps.tolist()
-    pickle.dump(fps, open(os.path.join(out_path), 'wb'))
-
-
 def calculate_new_esm(dataset: str, model: str, device: str):
     from autopeptideml.reps.lms import RepEngineLM
     from autopeptideml.pipeline import Pipeline
@@ -104,41 +73,6 @@ def calculate_new_esm(dataset: str, model: str, device: str):
     fp = [f.tolist() for f in fp]
     pickle.dump(fp, open(os.path.join(out_path), 'wb'))
 
-
-def calculate_esm_gram(dataset: str, model: str, device: str):
-    from autopeptideml.reps.lms import RepEngineLM
-    from autopeptideml.pipeline import Pipeline
-    from autopeptideml.pipeline.smiles import SmilesToSequence
-    from autopeptideml.pipeline.sequence import CanonicalCleaner
-
-    pipe = Pipeline(
-        elements=[SmilesToSequence(keep_analog=True),
-                  CanonicalCleaner(substitution='X')],
-        name='pipe',
-    )
-    re = RepEngineLM(model, gram_pooling=True)
-    re.move_to_device(device)
-    out_path = os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps', f'gram-{model}_{dataset}.pickle'
-    )
-    os.makedirs((os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps')), exist_ok=True)
-    if os.path.exists(out_path):
-        return
-    df = pd.read_csv(os.path.join(
-        os.path.dirname(__file__),
-        '..', 'downstream_data', f'{dataset}.csv'
-    ))
-    if 'sequence' in df.columns:
-        seqs = df.sequence.tolist()
-    else:
-        seqs = pipe(df['SMILES'].tolist())
-    fp = re.compute_reps(seqs, batch_size=64 if re.get_num_params() < 1e8 else 16,
-                         verbose=True)
-    fp = [f.tolist() for f in fp]
-    pickle.dump(fp, open(os.path.join(out_path), 'wb'))
 
 
 def calculate_esm(dataset: str, model: str, device: str):
@@ -243,54 +177,6 @@ def calculate_ecfp_count(dataset: str):
     pickle.dump(fps, open(os.path.join(out_path), 'wb'))
 
 
-def calculate_gram_chemberta(dataset: str, device: str):
-    from autopeptideml.reps.lms import RepEngineLM
-
-    re = RepEngineLM('chemberta-2', gram_pooling=True)
-    re.move_to_device(device)
-    out_path = os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps', f'gram-chemberta_{dataset}.pickle'
-    )
-    os.makedirs((os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps')), exist_ok=True)
-    if os.path.exists(out_path):
-        return
-    df = pd.read_csv(os.path.join(
-        os.path.dirname(__file__),
-        '..', 'downstream_data', f'{dataset}.csv'
-    ))
-    fp = re.compute_reps(df['SMILES'], batch_size=64 if re.get_num_params() < 1e8 else 16,
-                         verbose=True)
-    fp = [f.tolist() for f in fp]
-    pickle.dump(fp, open(os.path.join(out_path), 'wb'))
-    return fp
-
-
-def calculate_gram_molformer(dataset: str, device: str):
-    from autopeptideml.reps.lms import RepEngineLM
-
-    re = RepEngineLM('molformer-xl', gram_pooling=True)
-    re.move_to_device(device)
-    out_path = os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps', f'gram-molformer_{dataset}.pickle'
-    )
-    os.makedirs((os.path.join(
-        os.path.dirname(__file__),
-        '..', 'reps')), exist_ok=True)
-    if os.path.exists(out_path):
-        return
-    df = pd.read_csv(os.path.join(
-        os.path.dirname(__file__),
-        '..', 'downstream_data', f'{dataset}.csv'
-    ))
-    fp = re.compute_reps(df['SMILES'], batch_size=64 if re.get_num_params() < 1e8 else 16,
-                         verbose=True)
-    fp = [f.tolist() for f in fp]
-    pickle.dump(fp, open(os.path.join(out_path), 'wb'))
-    return fp
 
 
 def calculate_chemberta(dataset: str, device: str):
@@ -318,6 +204,31 @@ def calculate_chemberta(dataset: str, device: str):
     return fp
 
 
+def calculate_chemberta_3(dataset: str, device: str):
+    from autopeptideml.reps.lms import RepEngineLM
+
+    re = RepEngineLM('chemberta-3', average_pooling=True)
+    re.move_to_device(device)
+    out_path = os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps', f'chemberta-3_{dataset}.pickle'
+    )
+    os.makedirs((os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps')), exist_ok=True)
+    if os.path.exists(out_path):
+        return
+    df = pd.read_csv(os.path.join(
+        os.path.dirname(__file__),
+        '..', 'downstream_data', f'{dataset}.csv'
+    ))
+    fp = re.compute_reps(df['SMILES'], batch_size=64 if re.get_num_params() < 1e8 else 16,
+                         verbose=True)
+    fp = [f.tolist() for f in fp]
+    pickle.dump(fp, open(os.path.join(out_path), 'wb'))
+    return fp
+
+
 def calculate_molformer(dataset: str, device: str):
     from autopeptideml.reps.lms import RepEngineLM
 
@@ -326,6 +237,31 @@ def calculate_molformer(dataset: str, device: str):
     out_path = os.path.join(
         os.path.dirname(__file__),
         '..', 'reps', f'molformer_{dataset}.pickle'
+    )
+    os.makedirs((os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps')), exist_ok=True)
+    if os.path.exists(out_path):
+        return
+    df = pd.read_csv(os.path.join(
+        os.path.dirname(__file__),
+        '..', 'downstream_data', f'{dataset}.csv'
+    ))
+    fp = re.compute_reps(df['SMILES'], batch_size=64 if re.get_num_params() < 1e8 else 16,
+                         verbose=True)
+    fp = [f.tolist() for f in fp]
+    pickle.dump(fp, open(os.path.join(out_path), 'wb'))
+    return fp
+
+
+def calculate_peptidemtr(dataset: str, device: str):
+    from autopeptideml.reps.lms import RepEngineLM
+
+    re = RepEngineLM('peptidemtr', average_pooling=True)
+    re.move_to_device(device)
+    out_path = os.path.join(
+        os.path.dirname(__file__),
+        '..', 'reps', f'peptidemtr_{dataset}.pickle'
     )
     os.makedirs((os.path.join(
         os.path.dirname(__file__),
@@ -414,14 +350,15 @@ def calculate_pepfunnfp(dataset: str):
             fp, dict_fp = monomerFP(smile, radius=2, nBits=n_bits,
                                     add_freq=True,
                                     property_lib='property_ext.txt')
-        except ValueError:
+        except ValueError as e:
             if 'X' in smile:
                 smile = smile.replace('X', 'G')
                 fp = _get_fp(smile)
             else:
-                print(smile)
+                print(smile + " " + str(e))
                 return np.zeros((n_bits,))
         except TypeError:
+            print("2 " + smile)
             return np.zeros((n_bits,))
         return np.array(fp)
 
@@ -468,8 +405,11 @@ def main(dataset: str, rep: str, device: str = 'mps'):
     elif rep == 'molformer':
         print('Calculating MolFormer-XL representations...')
         calculate_molformer(dataset, device)
+    elif rep == 'chemberta-3':
+        print('Calculating ChemBERTa-3 100M MLM representations...')
+        calculate_chemberta_3(dataset, device)
     elif rep == 'chemberta':
-        print('Calculating ChemBERTa-2 77M MLM representations')
+        print('Calculating ChemBERTa-2 77M MLM representations...')
         calculate_chemberta(dataset, device)
     elif rep == 'gram-chemberta':
         print('Calculating ChemBERTa-2 77M MLM representations with Gram pooling')
@@ -477,6 +417,9 @@ def main(dataset: str, rep: str, device: str = 'mps'):
     elif rep == 'gram-molformer':
         print('Calculating Molformer-XL representations with Gram pooling')
         calculate_gram_molformer(dataset, device)
+    elif rep == 'peptidemtr':
+        print("Calculating PeptideMTR representations...")
+        calculate_peptidemtr(dataset, device)
     elif rep == 'pepclm':
         print('Calculating PeptideCLM representations...')
         calculate_pepclm(dataset)
